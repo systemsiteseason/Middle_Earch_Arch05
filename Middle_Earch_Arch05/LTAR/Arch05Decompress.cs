@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Ionic.Zlib;
 
 namespace Middle_Earch_Arch05.LTAR
 {
@@ -14,19 +9,13 @@ namespace Middle_Earch_Arch05.LTAR
 
         public byte[] OutDataDecompress()
         {
-            using (ZlibStream decompressor = new Ionic.Zlib.ZlibStream(this, CompressionMode.Decompress))
+            var outputStream = new MemoryStream();
+            using (var compressedStream = this)
+            using (var inputStream = new InflaterInputStream(compressedStream))
             {
-                int read = 0;
-                var buffer = new byte[1024 * 4];
-
-                using (MemoryStream output = new MemoryStream())
-                {
-                    while ((read = decompressor.Read(buffer, 0, buffer.Length)) > 0)
-                    {
-                        output.Write(buffer, 0, read);
-                    }
-                    return output.ToArray();
-                }
+                inputStream.CopyTo(outputStream);
+                outputStream.Position = 0;
+                return outputStream.ToArray();
             }
         }
     }
